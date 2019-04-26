@@ -13,11 +13,10 @@ def create_db():
     db = mongo['event_rec']
     collection = db['event_rec']
     event_data = pd.read_csv('event_attendees.csv')
-    data_json = json.loads(data.to_json(oerient='records')
+    data_json = json.loads(event_data.to_json(orient='records'))
     
 class event_rec():       
     def __init__(self):
-        self.path = "event-recommendation-engine-challenge"
         #this.x = []
         #this.Y1 = []
         #this.Y2 = []
@@ -39,7 +38,7 @@ class event_rec():
     def load_model(self):
         return False 
 
-    def extract_fatures(self):
+    def extract_features(self):
         '''
         Feature Extraction Order:
         User Attendence
@@ -47,11 +46,32 @@ class event_rec():
         '''
         events = pd.read_csv(events.csv)
         for e in events:
-            for att in e['id']
+            for att in e['id']:
+                # do some work
+                pass
+
+    #number of users attending, not attending, maybe attending and invited to the event
+    # with given event id
+    def user_event_cases(self, eid):
+       # TODO
+       pass
+
+
+    # processes the events and return features
+    def process_events(self, user, ev):
+       for id, invited in ev.items():
+            self.user_event_cases(id)
+
     
+
+   
+       
+
+    
+
     def load_training(self):
         print("load training data")
-        train_pd = pd.read_csv(self.path+"/train.csv")
+        train_pd = pd.read_csv("train.csv")
         train_set = {}
         for event in train_pd.iterrows():
             event = event[1]
@@ -67,12 +87,12 @@ class event_rec():
             user_num = train_pd['user'].count()
             for user, events in train_set.items():
                 ev = {ev_id['eid']: ev_id['invited'] for ev_id in events}
-                #features = 
+                self.process_events(user, ev)
         
 
     def load_test(self):
         print("load testing data")
-        test_pd = pd.read_csv(self.path+"/test.csv")
+        test_pd = pd.read_csv("test.csv")
         return
     
 if __name__ == "__main__":
