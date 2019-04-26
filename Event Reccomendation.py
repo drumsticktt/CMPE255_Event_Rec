@@ -4,27 +4,29 @@ from math import sqrt
 import pandas as pd
 import numpy as np
 import pymongo as mgo
-import json
 
 
 def create_db():
+    print("connecting to mongo db..")
     mongo = mgo.MongoClient('localhost', 27017)
     db = mongo['event_rec']
     collection = db['event_rec']
-    event_data = pd.read_csv('event_attendees.csv')
-    data_json = json.loads(data.to_json(oerient='records'))
+    
+class event_rec():       
+    def __init__(self):
+        self.path = "event-recommendation-engine-challenge"
+        #this.x = []
+        #this.Y1 = []
+        #this.Y2 = []
+        #self.init_mongo()
+        self.load_training()
+        self.load_test()
+        return
 
-class event_rec():
     def init_mongo(self):
+        print("init mongo")
         socket = mgo.Connection()
         db = socket.recomend
-        
-    
-    def __init__(self):
-        this.x = []
-        this.Y1 = []
-        this.Y2 = []
-        return
 
     def preprocess(self):
         return
@@ -32,26 +34,15 @@ class event_rec():
     def train_model(self):
         return
     def load_model(self):
-        return False
-
-    def extract_fatures(self):
-        '''
-        Feature Extraction Order:
-        User Attendence
-        
-        '''
-        events = pd.read_csv(events.csv)
-        for e in events:
-            for att in e['id']
-            
-            
+        return False 
     
-    def load_training(self, path):
-        train_pd = pd.read_csv(path)
+    def load_training(self):
+        print("load training data")
+        train_pd = pd.read_csv(self.path+"/train.csv")
         train_set = {}
         for event in train_pd.iterrows():
             event = event[1]
-            user = record['user']
+            user = event['user']
             if user not in train_set:
                 train_set[user] = []
             train_set[user].append({
@@ -61,12 +52,20 @@ class event_rec():
                 'not interested': event['not_interested']})
 
             user_num = train_pd['user'].count()
-            for user, events in train_set.iteritems():
-                ev = {ev_id['eid']: ev_id['invited'] for ev_id}
-                features = 
-        return
+            for user, events in train_set.items():
+                ev = {ev_id['eid']: ev_id['invited'] for ev_id in events}
+                #features = 
+        
 
     def load_test(self):
+        print("load testing data")
+        test_pd = pd.read_csv(self.path+"/test.csv")
         return
+    
+if __name__ == "__main__":
+    create_db()
+    event_rec()
+
+    
 
     
