@@ -4,6 +4,7 @@ from math import sqrt
 import pandas as pd
 import numpy as np
 import pymongo as mgo
+import json
 
 
 def create_db():
@@ -11,6 +12,8 @@ def create_db():
     mongo = mgo.MongoClient('localhost', 27017)
     db = mongo['event_rec']
     collection = db['event_rec']
+    event_data = pd.read_csv('event_attendees.csv')
+    data_json = json.loads(data.to_json(oerient='records')
     
 class event_rec():       
     def __init__(self):
@@ -35,6 +38,16 @@ class event_rec():
         return
     def load_model(self):
         return False 
+
+    def extract_fatures(self):
+        '''
+        Feature Extraction Order:
+        User Attendence
+        
+        '''
+        events = pd.read_csv(events.csv)
+        for e in events:
+            for att in e['id']
     
     def load_training(self):
         print("load training data")
