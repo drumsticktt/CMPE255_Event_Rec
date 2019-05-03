@@ -21,8 +21,9 @@ class event_rec():
         #this.Y1 = []
         #this.Y2 = []
         #self.init_mongo()
-        self.load_training()
-        self.load_test()
+        #self.load_training()
+        #self.load_test()
+        #self.extract_features()
         return
 
     def init_mongo(self):
@@ -44,8 +45,10 @@ class event_rec():
         User Attendence
         
         '''
-        events = pd.read_csv(events.csv)
-        for e in events:
+        events_pd = pd.read_csv("events.csv")
+        print(events_pd.shape)
+        print(events_pd.head)
+        for e in events_pd:
             for att in e['id']:
                 # do some work
                 pass
@@ -59,19 +62,16 @@ class event_rec():
 
     # processes the events and return features
     def process_events(self, user, ev):
-       for id, invited in ev.items():
+        for id, invited in ev.items():
             self.user_event_cases(id)
 
-    
 
-   
-       
-
-    
 
     def load_training(self):
-        print("load training data")
+        print("Load training data")
         train_pd = pd.read_csv("train.csv")
+        #print(train_pd.shape)
+        #print(train_pd.head)
         train_set = {}
         for event in train_pd.iterrows():
             event = event[1]
@@ -91,8 +91,10 @@ class event_rec():
         
 
     def load_test(self):
-        print("load testing data")
+        print("Load testing data")
         test_pd = pd.read_csv("test.csv")
+        #print(test_pd.shape)
+        #print(test_pd.head)
         return
     
 if __name__ == "__main__":
