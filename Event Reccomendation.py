@@ -7,13 +7,24 @@ import pymongo as mgo
 import json
 
 
-def create_db():
-    print("connecting to mongo db..")
-    mongo = mgo.MongoClient('localhost', 27017)
-    db = mongo['event_rec']
-    collection = db['event_rec']
-    event_data = pd.read_csv('event_attendees.csv')
-    data_json = json.loads(event_data.to_json(orient='records'))
+
+mongo = mgo.MongoClient('localhost', 27017)
+db = mongo['event-recommendation']
+collection = db['event_rec']
+event_data = pd.read_csv('event_attendees.csv')
+data_json = json.loads(event_data.to_json(orient='records'))
+
+user_info = db.user_info
+event_info = db.event_info
+attendance = db.attendance_info
+friends_db = db.friends_info
+
+user_info.ensure_index('id', {'unique': True})
+event_info.ensure_index('id', {'unique': True})
+attendance.ensure_index('uid')
+attendance.ensure_index('eid')
+attendance.ensure_index([('uid', ASCENDING), ('eid', ASCENDING)])
+friends_db.ensure_index('uid')
     
 class event_rec():       
     def __init__(self):
@@ -59,11 +70,74 @@ class event_rec():
        # TODO
        pass
 
+    @memoize
+    def get_user_attendance(self,uid):
+        return list(attendance.find({'uid': uid}))
+
+    def get_event_attendance(self,eid):
+        return list(attendance.find({'eid': int(eid)}))
 
     # processes the events and return features
-    def process_events(self, user, ev):
-        for id, invited in ev.items():
-            self.user_event_cases(id)
+    def process_events(self, uid, e_dict):
+        #for id, invited in ev.items():
+        #    self.user_event_cases(id)
+        attend_list_u = self.get_user_attendance(uid)
+        attend_list_ids = [f['eid'] for f in attend_list_u]
+        e_list = list(event_info.find({'id':{'$in': e_dict.keys()}}))
+        user = user_info.find_one({'id': uid})
+        attend_dict = {e['eid']: e for e in attend_list_u}
+
+        friends = list(friends_db.find_one({'uid': int(uid)}))
+        friend_ids = set(friends['friends'])
+
+        features_dict = {}
+        for e in e_list:
+            attend_list_e = self.get_event_attendance(e['id'])
+            features = [0, 0, 0, 0]
+            for att in attend_list_e:
+                if 'yes' in att:
+                    features[0] += 1
+                if 'no' in att:
+                    features[1] += 1
+                if 'maybe' in att:
+                    features[2] += 1
+                if 'invited' in att:
+                    features[3] += 1
+            features.extend([
+                features[1] * 1.0 / (features[0] + 1),
+                features[2] * 1.0 / (features[0] + 1),
+                features[3] * 1.0 / (features[0] + 1),
+            ])
+            
+            features2 = [0, 0, 0, 0]
+            for att in attend_list_e:
+                if att['uid'] not in friend_ids:
+                    continue
+                if 'yes' in att:
+                    features2[0] += 1
+                if 'no' in att:
+                    features2[1] += 1
+                if 'maybe' in att:
+                    features2[2] += 1
+                if 'invited' in att:
+                    features2[3] += 1
+            features2.extend([
+                features2[1] * 1.0 / (features2[0] + 1),
+                features2[2] * 1.0 / (features2[0] + 1),
+                features2[3] * 1.0 / (features2[0] + 1),
+            ])
+            features2.extend([
+                features2[0] / (len(friend_ids) + 1.0),
+                features2[1] / (len(friend_ids) + 1.0),
+                features2[2] / (len(friend_ids) + 1.0),
+                features2[3] / (len(friend_ids) + 1.0),
+            ])
+            features.extend(features2)
+
+            # add distance to event ...................
+
+            features_dict[e['id']] = features
+        return features_dict
 
 
 
@@ -98,9 +172,7 @@ class event_rec():
         return
     
 if __name__ == "__main__":
-    create_db()
+    #create_db()
     event_rec()
-
-    
 
     
