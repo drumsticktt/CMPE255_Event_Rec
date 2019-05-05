@@ -7,11 +7,11 @@ class loaddata():
     def __init__(self):
         self.client = self.setup_db_connection()
         self.db = self.client['event-recommendation']
-        #self.load_friends()
-        #self.load_user_info()
-        self.load_attendance_info()
+        #self.load_friends() -- done
+        #self.load_user_info() -- done
+        #self.load_attendance_info()
         #self.load_event_info()
-        #self.update_attendance_events()
+        self.update_attendance_events()
         #self.update_attendance_train_data()
 
     def setup_db_connection(self):
@@ -29,9 +29,11 @@ class loaddata():
             for row in reader:
                 record = {
                     'uid': row['user'],
-                    'friends': row['friends']
+                    'friends': [u.strip() for u in row['friends'].split()]
                 }
                 friends.insert_one(record)
+
+       
 
     def load_user_info(self):
         print("loading user info to db")
@@ -41,23 +43,32 @@ class loaddata():
             columns = reader.fieldnames
             print(columns)
             for row in reader:
+                a = row['birthyear']
+                try:
+                    a = int(a)
+                    if a < 1940:
+                        a = None
+                    else:
+                        a = 2013 - a
+                except:
+                    a = None
                 record = {
-                    'uid': row['user_id'],
+                    'uid': row['user_id'].strip(),
                     'locale': row['locale'],
                     'birthyear': row['birthyear'],
                     'gender': row['gender'],
                     'joinedAt': row['joinedAt'],
                     'location':row['location'],
-                    'timezone':row['timezone']
-
+                    'timezone':row['timezone'],
+                    'age':a
                 }
                 user_info.insert_one(record)
 
-    def update_attendance(self, uid, eid, att_type):
+    def update_attendance(self, uid, eid, att_type1, att_type2):
         attendance_info = self.db['attendance_info']
         attendance_info.update(
             {'uid': uid, 'eid': eid},
-            {'$set': {'uid': uid, 'eid': eid, att_type: True}}, 
+            {'$set': {'uid': uid, 'eid': eid, att_type1: True, att_type2: True}}, 
             upsert=True)
 
     def load_attendance_info(self):
@@ -123,10 +134,10 @@ class loaddata():
             for e in chunk.iterrows():
                 e = e[1]
                 eid = e['event_id']
-                uid = e['user_id']
+                uid = int(e['user_id'])
                 
-                self.update_attendance(uid, eid, 'yes')
-                self.update_attendance(uid, eid, 'interested')
+                self.update_attendance(uid, eid, 'yes', 'interested')
+                #self.update_attendance(uid, eid, 'interested')
     
 
     def update_attendance_train_data(self):
@@ -143,6 +154,7 @@ class loaddata():
 
 if __name__ == "__main__":
     loaddata()
+
 
 
 
