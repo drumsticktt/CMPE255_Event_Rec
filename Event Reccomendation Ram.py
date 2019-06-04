@@ -394,8 +394,6 @@ class event_rec():
         #print(test_pd.head)
         return
     
-if __name__ == "__main__":
-    #create_db()
     event_rec()
 
     
