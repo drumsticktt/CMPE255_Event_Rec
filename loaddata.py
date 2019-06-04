@@ -12,9 +12,9 @@ class loaddata():
         self.db = self.client['event-recommendation']
         self.attendance = self.db['attendance_info']
         self.user_info = self.db['user_info']
-        #self.load_friends()
-        #self.load_user_info()
-        #self.load_attendance_info_2()
+        self.load_friends()
+        self.load_user_info()
+        self.load_attendance_info_2()
         self.load_event_info_2()
         
 
